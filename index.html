@@ -295,7 +295,7 @@ function renderHero(){const el=document.getElementById('lineup');if(!el)return;
  const pods=HERO.filter(id=>IMG[id]&&IMG[id].img).map((id,i)=>{const m=DB.models.find(x=>x.id===id);return `<div class="pod" style="--i:${i}" onclick="openModal('${id}')"><div class="pic"><img src="${IMG[id].img}" alt="${m.label}" onerror="this.parentElement.parentElement.style.display='none'"></div><div class="lb">${catL(m.cat)}<small>${m.label}</small></div></div>`;}).join('');
  el.innerHTML=`<div class="ltrack">${pods}${pods}</div>`;
  const hs=document.getElementById('hstat');if(hs)hs.innerHTML=`<span><b>${DB.models.length}</b> 모델</span><span><b>${cats.length}</b> 카테고리</span><span>매일 <b>오전 7시 50분</b> 자동 갱신</span><span>기준일 <b>${today}</b></span>`;}
-let miniChart;
+let miniChart;let modalOpen=false;
 function openModal(id){const m=DB.models.find(x=>x.id===id);const im=IMG[id]&&IMG[id].img;const list=(SITES[id]||[]).slice();const ex=EX[id]||{};const ship=ex.ship||{};const dc=dcReal(m,ex);const dcCash=ex.dc_cash||0,dcGift=ex.dc_gift||0;const isPh=(m.cat==='휴대폰');const dcApp=isPh?20000:0;const dcPay=(dc!=null)?(dc-dcApp):null;const dcMore=(dc!=null)&&((dcCash+dcGift)>0);const dcBen=(dc!=null)?(dcPay-dcCash-dcGift):null;const dcLabel=dcMore?'결제가':((ex.dotcom!=null)?(isPh?'결제가':'혜택가'):(isPh?'실판매가':'정가'));const dcUrl=dotcomUrl(m);list.sort((a,b)=>a.price-b.price);
  const comp=DB.history[today][id]??null;const lo=list[0];const d=disc(id,lo?lo.price:comp);
  const nv=`https://search.shopping.naver.com/search/all?query=${encodeURIComponent('삼성 '+m.label)}`;
@@ -357,6 +357,7 @@ function openModal(id){const m=DB.models.find(x=>x.id===id);const im=IMG[id]&&IM
   <div class="mlist">${dcBlock}${cmpdiv}${rowsH}${naver}<div class="note">※ <b>결제가</b>(실제 카드 결제액)끼리, <b>혜택가</b>(적립·캐시백·상품권까지 반영한 체감가)끼리 비교합니다. 삼성닷컴 결제가 = 정가−즉시할인, 혜택가 = −삼성카드 캐시백·매장픽업 신세계상품권 / 쇼마젠시 혜택가 = −N포인트·라이브적립 / 쿠팡 혜택가 = −쿠팡캐시. 조건부 혜택이 포함돼 실제 적용은 결제수단 등에 따라 달라질 수 있어요. <b>휴대폰은 쇼마젠시(네이버)·쿠팡 브랜드샵</b>, <b>그 외 품목은 다나와</b> 기준이며 클릭 시 상품페이지로 이동합니다.</div></div>
  </div></div>`;
  document.getElementById('modalRoot').innerHTML=html;document.body.style.overflow='hidden';
+ if(!modalOpen){modalOpen=true;try{history.pushState({mxModal:1},'');}catch(e){}}
  renderTrend(id,1);
  document.querySelectorAll('#pseg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#pseg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderTrend(id,parseInt(b.dataset.mm));});}
 function renderTrend(id,mm){const cut=new Date(today);cut.setMonth(cut.getMonth()-mm);
@@ -372,7 +373,10 @@ function renderTrend(id,mm){const cut=new Date(today);cut.setMonth(cut.getMonth(
  dsets.push({label:'쇼핑몰 최저가',data:series,borderColor:'#e63946',backgroundColor:'rgba(230,57,70,.08)',tension:.3,fill:true,pointRadius:ds.length>1?2:4,pointBackgroundColor:'#e63946'});
  if(miniChart)miniChart.destroy();
  miniChart=new Chart(document.getElementById('mini'),{type:'line',data:{labels:ds.map(s=>s.slice(5)),datasets:dsets},options:{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,font:{size:10},color:'#46587a'}}},scales:{x:{ticks:{color:'#8492ab',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#8492ab',font:{size:10},callback:v=>(v/10000).toFixed(0)+'만'},grid:{color:'#eef2fb'}}}}});}
-function closeModal(){if(miniChart){miniChart.destroy();miniChart=null;}document.getElementById('modalRoot').innerHTML='';document.body.style.overflow='';}
+function closeModal(fromPop){if(miniChart){miniChart.destroy();miniChart=null;}document.getElementById('modalRoot').innerHTML='';document.body.style.overflow='';
+ var was=modalOpen;modalOpen=false;
+ if(was&&fromPop!==true){try{history.back();}catch(e){}}}
+window.addEventListener('popstate',function(){if(modalOpen)closeModal(true);});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 let chart;
 function drawChart(){const mode=document.getElementById('cmode').value;document.getElementById('cmodel').classList.toggle('hidden',mode!=='model');
