@@ -216,9 +216,11 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .mhead img{width:48px;height:48px}
 .mhead .ti{font-size:14px}
 .mrow{gap:9px;padding:10px}
-.nvstage{gap:6px}
+.nvstage{grid-template-columns:1fr;gap:5px;align-items:stretch}
+.nvarrow{transform:rotate(90deg);justify-self:center;line-height:1;margin:1px 0;font-size:16px}
+.nvres{width:100%}
 .nvrow,.nvres .big b,.dcben b{font-size:12px}
-.dcben{margin:8px 12px 0;padding:9px 11px}
+.dcben{grid-template-columns:1fr;gap:6px;margin:8px 12px 0;padding:9px 11px}
 }
 @media(max-width:400px){.grid{grid-template-columns:1fr 1fr;gap:10px}.hero .htag{font-size:19px}.pod,.pod .pic{width:82px}.pod .pic{height:82px}}
 </style></head><body><div class="wrap">
